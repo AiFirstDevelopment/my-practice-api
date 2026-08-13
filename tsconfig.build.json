@@ -1,0 +1,7 @@
+{
+  // What ships in the image: the same settings as tsconfig.json, minus the
+  // tests. `npm run typecheck` still uses the base config, so test files are
+  // type-checked even though they are never emitted to dist/.
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "src/tests"]
+}

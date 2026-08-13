@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+node_modules
+dist
+data
+*.log
+*.md
+*.code-workspace
+Dockerfile
+.dockerignore

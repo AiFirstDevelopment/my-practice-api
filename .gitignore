@@ -1,5 +1,8 @@
 node_modules/
 
+# tsc output
+dist/
+
 # FileTodoRepo's on-disk store
 data/
 

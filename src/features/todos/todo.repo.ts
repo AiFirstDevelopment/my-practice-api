@@ -15,8 +15,6 @@ export interface TodoRepo {
   remove(id: string): Promise<boolean>;
 }
 
-const DEFAULT_DB_PATH = path.join(process.cwd(), 'data', 'todos.json');
-
 /** Persists todos as a single JSON file. */
 export class FileTodoRepo implements TodoRepo {
   private readonly dbPath: string;
@@ -26,7 +24,7 @@ export class FileTodoRepo implements TodoRepo {
   // same snapshot and the second write would drop the first todo.
   private queue: Promise<unknown> = Promise.resolve();
 
-  constructor(dbPath: string = DEFAULT_DB_PATH) {
+  constructor(dbPath: string) {
     this.dbPath = dbPath;
   }
 

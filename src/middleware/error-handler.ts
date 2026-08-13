@@ -6,33 +6,16 @@ import type { ErrorRequestHandler } from 'express';
  * promises from async handlers here automatically.
  */
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  const status = statusOf(err);
+  const status = typeof err?.status === 'number' && err.status >= 400 ? err.status : 500;
 
   if (status >= 500) {
     console.error(err);
     // Never the thrown message: it can carry a stack, a query, or a path.
-    res.status(status).json({ error: 'internal server error' });
+    res.status(500).json({ error: 'internal server error' });
     return;
   }
 
-  // 4xx means the caller can fix it, so the reason has to reach them. These are
-  // raised by middleware that already writes caller-safe messages — body-parser
-  // sends "request entity too large" for a body over the limit, and
-  // "Unexpected token ... in JSON" for a malformed one.
-  console.warn(`${status}: ${messageOf(err)}`);
-  res.status(status).json({ error: messageOf(err) });
+  // 4xx means the caller can fix it, so the reason has to reach them. These come
+  // from middleware that already writes caller-safe messages.
+  res.status(status).json({ error: err.message ?? 'bad request' });
 };
-
-function statusOf(err: unknown): number {
-  const candidate = (err as { status?: unknown; statusCode?: unknown } | null)?.status
-    ?? (err as { statusCode?: unknown } | null)?.statusCode;
-
-  return typeof candidate === 'number' && candidate >= 400 && candidate <= 599
-    ? candidate
-    : 500;
-}
-
-function messageOf(err: unknown): string {
-  const message = (err as { message?: unknown } | null)?.message;
-  return typeof message === 'string' && message !== '' ? message : 'bad request';
-}

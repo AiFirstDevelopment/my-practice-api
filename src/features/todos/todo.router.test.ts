@@ -12,7 +12,7 @@ describe('todos router', () => {
   // A fresh app on a fresh in-memory repo per test: no shared state, no
   // filesystem, nothing to clean up between cases.
   beforeEach(() => {
-    app = createApp({ todoRepo: new InMemoryTodoRepo() });
+    app = createApp(new InMemoryTodoRepo());
   });
 
   it('returns an empty list when there are no todos', async () => {

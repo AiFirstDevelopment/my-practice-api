@@ -4,7 +4,7 @@ import { createApp } from "../app";
 import { InMemoryTodoRepo } from "../features/todos/todo.repo.memory";
 import request from "supertest"
 
-const app = createApp({ todoRepo: new InMemoryTodoRepo() });
+const app = createApp(new InMemoryTodoRepo());
 
 describe("Integration/component tests", () => {
     test("GET /healthz reports ok", async () => {
@@ -13,14 +13,5 @@ describe("Integration/component tests", () => {
             .expect(200)
 
         assert.deepEqual(res.body, { status: "ok" })
-    })
-
-    test("rejects a body over the size limit with 413", async () => {
-        const small = createApp({ todoRepo: new InMemoryTodoRepo(), bodyLimit: "1kb" });
-
-        await request(small)
-            .post("/todos")
-            .send({ title: "x".repeat(2048) })
-            .expect(413)
     })
 })

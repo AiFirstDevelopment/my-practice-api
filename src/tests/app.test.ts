@@ -15,14 +15,6 @@ describe("Integration/component tests", () => {
         assert.deepEqual(res.body, { status: "ok" })
     })
 
-    test("sets security headers from helmet", async () => {
-        const res = await request(app)
-            .get("/healthz")
-            .expect(200)
-
-        assert.equal(res.headers["x-content-type-options"], "nosniff")
-    })
-
     test("rejects a body over the size limit with 413", async () => {
         const small = createApp({ todoRepo: new InMemoryTodoRepo(), bodyLimit: "1kb" });
 

@@ -1,5 +1,4 @@
 import express, { type Express, type Request, type Response } from "express";
-import helmet from "helmet";
 import { errorHandler } from "./middleware/error-handler";
 import { authenticate } from "./middleware/auth";
 import { makeTodoRouter } from "./features/todos/todo.router";
@@ -17,10 +16,6 @@ export interface AppDeps {
  */
 export function createApp(deps: AppDeps): Express {
     const app: Express = express();
-
-    // Security headers first, so they are set even on responses from the
-    // middleware below.
-    app.use(helmet());
 
     // Bounded: without a limit a single request can buffer unlimited memory.
     app.use(express.json({ limit: deps.bodyLimit ?? "100kb" }));

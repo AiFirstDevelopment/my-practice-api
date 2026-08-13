@@ -75,6 +75,20 @@ describe('todos router', () => {
     assert.equal(res.body.title, 'walk dog');
   });
 
+  it('rejects a patch with an invalid title', async () => {
+    const created = (await request(app).post('/todos').send({ title: 'walk dog' })).body;
+
+    // Every value here fails the same non-empty-string guard the create path uses.
+    for (const title of ['', '   ', 42]) {
+      const res = await request(app)
+        .patch(`/todos/${created.id}`)
+        .send({ title })
+        .expect(400);
+
+      assert.match(res.body.error, /title/);
+    }
+  });
+
   it('rejects a patch with a non-boolean done', async () => {
     const created = (await request(app).post('/todos').send({ title: 'walk dog' })).body;
 

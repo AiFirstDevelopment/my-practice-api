@@ -1,0 +1,6 @@
+node_modules/
+
+# FileTodoRepo's on-disk store
+data/
+
+*.log

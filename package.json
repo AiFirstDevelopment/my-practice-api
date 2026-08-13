@@ -1,0 +1,22 @@
+{
+  "name": "my-practice-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsx --test src/tests/app.test.ts src/features/todos/todo.router.test.ts",
+    "start": "tsx src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.2.0",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2"
+  }
+}

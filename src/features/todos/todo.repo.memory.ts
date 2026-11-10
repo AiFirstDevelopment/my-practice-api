@@ -1,5 +1,5 @@
-import type { TodoRepo } from './todo.repo';
-import type { Todo, TodoPatch } from './todo.types';
+import { matchesTodoFilter, type TodoRepo } from './todo.repo';
+import type { Todo, TodoFilter, TodoPatch } from './todo.types';
 
 /**
  * Non-persistent TodoRepo. Tests build one per test case, which gives every test
@@ -12,8 +12,8 @@ export class InMemoryTodoRepo implements TodoRepo {
     this.todos = [...seed];
   }
 
-  async list(): Promise<Todo[]> {
-    return [...this.todos];
+  async list(filter: TodoFilter = {}): Promise<Todo[]> {
+    return this.todos.filter((todo) => matchesTodoFilter(todo, filter));
   }
 
   async findById(id: string): Promise<Todo | undefined> {

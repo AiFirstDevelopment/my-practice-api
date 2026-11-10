@@ -10,7 +10,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "tsx --test src/tests/app.test.ts src/features/todos/todo.router.test.ts",
+    "test": "tsx --test src/tests/app.test.ts src/features/todos/todo.router.test.ts src/features/todos/todo.repo.test.ts",
     "start": "tsx src/server.ts",
     "dev": "tsx watch src/server.ts",
     "start:dist": "node dist/server.js"

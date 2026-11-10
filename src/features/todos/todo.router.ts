@@ -1,7 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { randomUUID } from 'crypto';
 import type { TodoRepo } from './todo.repo';
-import type { Todo, TodoPatch } from './todo.types';
+import type { Todo, TodoFilter, TodoPatch } from './todo.types';
 
 /**
  * Builds the /todos router. Nothing in here knows where it will be mounted, and
@@ -25,8 +25,26 @@ export function makeTodoRouter(repo: TodoRepo): Router {
 
   router
     .route('/')
-    .get(async (_req: Request, res: Response) => {
-      res.status(200).json(await repo.list());
+    .get(async (req: Request, res: Response) => {
+      const { done, q } = req.query;
+      const filter: TodoFilter = {};
+
+      if (done !== undefined) {
+        if (done !== 'true' && done !== 'false') {
+          return res.status(400).json({ error: 'done must be "true" or "false"' });
+        }
+        filter.done = done === 'true';
+      }
+
+      if (q !== undefined) {
+        // A repeated `?q=a&q=b` parses as an array.
+        if (typeof q !== 'string') {
+          return res.status(400).json({ error: 'q must be a single string' });
+        }
+        if (q.trim() !== '') filter.q = q.trim();
+      }
+
+      res.status(200).json(await repo.list(filter));
     })
     .post(async (req: Request, res: Response) => {
       const { title } = req.body ?? {};

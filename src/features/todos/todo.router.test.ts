@@ -117,4 +117,55 @@ describe('todos router', () => {
     const res = await request(other).get('/api/v1/todos').expect(200);
     assert.equal(res.body.length, 1);
   });
+
+  describe('filtering GET /todos', () => {
+    const titles = (body: { title: string }[]) => body.map((t) => t.title);
+
+    beforeEach(() => {
+      const createdAt = new Date(0).toISOString();
+      app = createApp(
+        new InMemoryTodoRepo([
+          { id: '1', title: 'Buy milk', done: false, createdAt },
+          { id: '2', title: 'buy oat MILK', done: true, createdAt },
+          { id: '3', title: 'walk dog', done: true, createdAt },
+          { id: '4', title: 'read docs', done: false, createdAt },
+        ])
+      );
+    });
+
+    it('filters by done=true', async () => {
+      const res = await request(app).get('/todos?done=true').expect(200);
+      assert.deepEqual(titles(res.body), ['buy oat MILK', 'walk dog']);
+    });
+
+    it('filters by done=false', async () => {
+      const res = await request(app).get('/todos?done=false').expect(200);
+      assert.deepEqual(titles(res.body), ['Buy milk', 'read docs']);
+    });
+
+    it('matches q case-insensitively against the title', async () => {
+      const res = await request(app).get('/todos?q=MiLk').expect(200);
+      assert.deepEqual(titles(res.body), ['Buy milk', 'buy oat MILK']);
+    });
+
+    it('combines done and q', async () => {
+      const res = await request(app).get('/todos?done=false&q=milk').expect(200);
+      assert.deepEqual(titles(res.body), ['Buy milk']);
+    });
+
+    it('ignores an empty q', async () => {
+      const res = await request(app).get('/todos?q=').expect(200);
+      assert.equal(res.body.length, 4);
+    });
+
+    it('rejects a done that is not true or false', async () => {
+      const res = await request(app).get('/todos?done=yes').expect(400);
+      assert.match(res.body.error, /done/);
+    });
+
+    it('rejects a repeated q', async () => {
+      const res = await request(app).get('/todos?q=a&q=b').expect(400);
+      assert.match(res.body.error, /q/);
+    });
+  });
 });

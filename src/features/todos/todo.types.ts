@@ -10,6 +10,13 @@ export interface TodoPatch {
   done?: boolean;
 }
 
+/** Criteria for `TodoRepo.list`. Omitted fields don't filter; set fields combine with AND. */
+export interface TodoFilter {
+  done?: boolean;
+  /** Case-insensitive substring match on the title. */
+  q?: string;
+}
+
 declare global {
   namespace Express {
     interface Locals {

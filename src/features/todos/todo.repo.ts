@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { Todo, TodoPatch } from './todo.types';
+import type { Todo, TodoFilter, TodoPatch } from './todo.types';
 
 /**
  * The storage contract the router depends on. The router is handed one of these
@@ -8,11 +8,23 @@ import type { Todo, TodoPatch } from './todo.types';
  * `InMemoryTodoRepo` without touching disk.
  */
 export interface TodoRepo {
-  list(): Promise<Todo[]>;
+  /**
+   * Returns the todos matching `filter` (all of them when it is omitted). A
+   * database-backed repo should apply it in its query — e.g. `done = $1` and
+   * `title ILIKE '%' || $2 || '%'` with `%`, `_` and `\\` escaped in `$2`.
+   */
+  list(filter?: TodoFilter): Promise<Todo[]>;
   findById(id: string): Promise<Todo | undefined>;
   add(todo: Todo): Promise<Todo>;
   patch(id: string, patch: TodoPatch): Promise<Todo | undefined>;
   remove(id: string): Promise<boolean>;
+}
+
+/** The filter semantics for repos that filter in memory, kept in one place so they agree. */
+export function matchesTodoFilter(todo: Todo, filter: TodoFilter): boolean {
+  if (filter.done !== undefined && todo.done !== filter.done) return false;
+  if (filter.q && !todo.title.toLowerCase().includes(filter.q.toLowerCase())) return false;
+  return true;
 }
 
 /** Persists todos as a single JSON file. */
@@ -28,8 +40,9 @@ export class FileTodoRepo implements TodoRepo {
     this.dbPath = dbPath;
   }
 
-  async list(): Promise<Todo[]> {
-    return this.read();
+  async list(filter: TodoFilter = {}): Promise<Todo[]> {
+    const todos = await this.read();
+    return todos.filter((todo) => matchesTodoFilter(todo, filter));
   }
 
   async findById(id: string): Promise<Todo | undefined> {
